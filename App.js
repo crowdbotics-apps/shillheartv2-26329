@@ -1,73 +1,41 @@
-import React from "react";
-import { Provider } from "react-redux";
 import "react-native-gesture-handler";
+import { StatusBar } from "expo-status-bar";
+import React from "react";
+import { ThemeProvider } from "react-native-elements";
+import AppLoading from "expo-app-loading";
+import {
+  useFonts,
+  Poppins_300Light,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+} from "@expo-google-fonts/poppins";
+import { lightTheme } from "./src/themes";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from '@react-navigation/stack';
-import { configureStore, createReducer, combineReducers } from "@reduxjs/toolkit";
+import StackNavigator from "./src/navigators/StackNavigator";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { screens } from "@screens";
-import { hooks, slices, navigators, initialRoute } from "@modules";
-import { connectors } from "@store";
-
-const Stack = createStackNavigator();
-
-const getNavigation = (modules, screens, initialRoute) => {
-  const Navigation = () => {
-    const routes = modules.concat(screens).map(([name, navigator]) => {
-      return (
-        <Stack.Screen key={name} name={name} component={navigator} />
-      )
-    });
+export default function App() {
+  const [fontsLoaded] = useFonts({
+    Poppins_300Light,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+  });
+  if (fontsLoaded) {
     return (
       <NavigationContainer>
-        <Stack.Navigator initialRouteName={initialRoute}>
-          {routes}
-        </Stack.Navigator>
+        <ThemeProvider theme={lightTheme}>
+          <StatusBar style="dark" />
+          <SafeAreaProvider>
+            <StackNavigator />
+          </SafeAreaProvider>
+        </ThemeProvider>
       </NavigationContainer>
-    )
+    );
+  } else {
+    return <AppLoading />;
   }
-  return Navigation;
 }
-
-const getStore = slices => {
-  const reducers = Object.fromEntries(slices.map(([name, slice]) => [name, slice.reducer]));
-
-  const appState = {
-    name: "shillheartv2_26329Identifier",
-    url: "https://shillheartv2_26329Identifier.botics.co",
-    version: "1.0.0"
-  }
-
-  const appReducer = createReducer(appState, _ => {
-    return appState;
-  })
-
-  const reducer = combineReducers({
-    app: appReducer,
-    ...reducers
-  });
-
-  return configureStore({
-    reducer: reducer,
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware()
-  });
-}
-
-
-const App = () => {
-  const Navigation = getNavigation(navigators, screens, initialRoute);
-  const store = getStore([...slices, ...connectors]);
-
-  let effects = {};
-  hooks.map(([_, hook]) => {
-    effects[hook.name] = hook();
-  });
-
-  return (
-    <Provider store={store}>
-      <Navigation />
-    </Provider>
-  );
-};
-
-export default App;

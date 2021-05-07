@@ -1,4 +1,12 @@
 {
-  "name": "shillheartv2_26329",
-  "displayName": "shillheartv2_26329"
+  "name": "Shrill",
+  "displayName": "Shrill",
+  "expo": {
+    "name": "Shrill",
+    "slug": "Shrill",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
 }
